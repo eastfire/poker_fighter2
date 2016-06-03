@@ -4,6 +4,7 @@ var EquipmentModel = Backbone.Model.extend({
             level: 1,
             type:"",
             subtype:""
+            requirements:null,
             skills:[]
         }
     }
