@@ -1,0 +1,30 @@
+{
+    "project_type": "javascript",
+
+    "debugMode" : 1,
+    "showFPS" : false,
+    "frameRate" : 60,
+    "noCache" : false,
+    "id" : "gameCanvas",
+    "renderMode" : 0,
+    "engineDir":"frameworks/cocos2d-html5",
+
+    "modules" : [ "cocos2d", "ccui"],
+
+    "jsList" : [
+        "src/libs/underscore-min.js",
+        "src/libs/backbone-min.js",
+        "src/libs/utils.js",
+        "src/resource.js",
+        "src/game-common.js",
+        "src/res/colors.js",
+        "src/res/dimens.js",
+        "src/res/texts.js",
+        "src/res/times.js",
+        "src/model/card.js",
+        "src/view/card-sprite.js",
+        "src/scene/intro.js",
+        "src/tutorial.js",
+        "src/app.js"
+    ]
+}

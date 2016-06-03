@@ -1,0 +1,10 @@
+raw
+simulator
+publish/android
+publish/html5/res/Icon*.png
+.idea
+frameworks
+*.swp
+*/*.swp
+.DS_Store
+*/.DS_Store
