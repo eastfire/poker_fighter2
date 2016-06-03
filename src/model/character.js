@@ -28,8 +28,10 @@ var CharacterModel = Backbone.Model.extend({
             
             deck: [],
             discardDeck: [],
+            outCards: [],
             
             equipments: [],
+            status:[]
             
         }
     },
