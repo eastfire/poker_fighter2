@@ -13,7 +13,7 @@ var SUIT_NUMBER_MANA = 10;
 
 var ALL_SUIT_NUMBERS = [SUIT_NUMBER_BLANK,SUIT_NUMBER_EARTH, SUIT_NUMBER_WATER, SUIT_NUMBER_AIR, SUIT_NUMBER_FIRE, SUIT_NUMBER_LIGHT, SUIT_NUMBER_DARK,
     SUIT_NUMBER_SWORD,SUIT_NUMBER_SHIELD,SUIT_NUMBER_HP,SUIT_NUMBER_MANA]
-SUIT_ARRAY = ["blank","earth","water","air","fire", "light","dark","sword","shield","hp","mana"];
+var SUIT_ARRAY = ["blank","earth","water","air","fire", "light","dark","sword","shield","hp","mana"];
 
 
 var PokerCardModel = Backbone.Model.extend({
