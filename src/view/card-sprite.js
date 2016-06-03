@@ -266,7 +266,7 @@ var NormalCardSprite = cc.Sprite.extend({
         if ( this.model.get("side") === "front" ) {
             var suit = this.model.get("suit");
 
-            var r = ( suit === 1 || suit === 3 )?"r":"";
+            var r = ( suit === SUIT_NUMBER_WATER || suit === SUIT_NUMBER_FIRE )?"r":"";
             this.numberSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("number-" + this.model.get("number") + r + ".png"));
             this.numberDownSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("number-" + this.model.get("number") + r + ".png"));
             this.numberSprite.setVisible(true);
@@ -276,6 +276,7 @@ var NormalCardSprite = cc.Sprite.extend({
             this.numberSprite.setVisible(false);
             this.numberDownSprite.setVisible(false);
         }
+        this.suitSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("icon-"+SUIT_ARRAY[this.model.get("suit")]+".png"));
     },
     onEnter:function(){
         this._super();
@@ -315,6 +316,13 @@ var NormalCardSprite = cc.Sprite.extend({
 
 var PokerCardSprite = NormalCardSprite.extend({
     initView:function(){
+        this.suitSprite = new cc.Sprite();
+        this.suitSprite.attr({
+            x: dimens.card_size.width/2,
+            y: dimens.card_size.height/2
+        });
+        this.contentSprite.addChild(this.suitSprite, 0);
+        
         this.numberSprite = new cc.Sprite();
         this.numberSprite.attr({
             x: dimens.card_number_position.x,
