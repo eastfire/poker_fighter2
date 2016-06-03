@@ -3,14 +3,17 @@ var CharacterModel = Backbone.Model.extend({
         return {
             hp: 100,
             maxHp: 100,
+            hpGeneration: 0,
+            
             mana: 100,
             maxMana: 100,
+            manaGeneration: 1,
 
             exp: 0,
             requiredExp: 100,
             
             attack: 10,
-            defense: 10,
+            defense: 0,
             
             strength: 0, // effect attack
             cunning: 0, //exp required
