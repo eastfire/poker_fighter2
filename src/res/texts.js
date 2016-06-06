@@ -34,20 +34,25 @@ var texts_locale = {
             "no-card": "没牌"
         },
 
-        letMeSee: "让我看看",
-        player1 : "玩家↓",
-        player2 : "玩家↑",
-        player: "玩家",
-        aiPlayer: "AI↑",
+        skill:{
+            "light-attack":{
+                name:"轻攻击"
+            },
+            "middle-attack":{
+                name:"中攻击"
+            },
+            "heavy-attack":{
+                name:"重攻击"
+            },
+            "shield-up":{
+                name:"架盾"
+            },
+            "weapon-enchant-fire":{
+                name:"武器附魔（火）"
+            }
+        },
+
         aiLevel:[ "简单AI","普通AI", "困难AI","疯狂AI"],
-        deck: "使用的牌堆",
-        token: "出现筹码",
-        item: "出现道具",
-        none: "无",
-        few: "少量",
-        normal: "普通",
-        many: "很多",
-        mania: "疯狂",
 
         language: "语言",
         followSystem:"跟随系统",

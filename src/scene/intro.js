@@ -19,22 +19,30 @@ var IntroLayer = cc.LayerColor.extend({
         if ( lang != "zh" ) lang = "en";
 
         var startItem = new cc.MenuItemImage(
-            cc.spriteFrameCache.getSpriteFrame("2player-menu.png"),
-            cc.spriteFrameCache.getSpriteFrame("2player-menu.png"),
+            cc.spriteFrameCache.getSpriteFrame("adventure-menu.png"),
+            cc.spriteFrameCache.getSpriteFrame("adventure-menu.png"),
             function () {
-                this.putStack(vsItem.x,vsItem.y,function(){
-                    statistic.game = statistic.game || {};
-                    var playedOnce = statistic.game.vs || statistic.game["vs-ai"]
-                    if ( playedOnce ) {
-                        cc.director.runScene(new ModeSelectScene({mode: "vs"}));
-                    } else {
-                        cc.director.runScene(new MainScene({
-                            mode: "vs",
-                            aiDifficulty: AI_DIFFICULTY_EASY,
-                            itemPool : INIT_ITEMS
-                        }));
-                    }
-                })
+                cc.director.runScene(new FightScene({
+                    p1: new HeroModel({
+                        position: PLAYER_POSITION_DOWN
+                    }),
+                    p2: new EnemyModel({
+                        position: PLAYER_POSITION_UP
+                    })
+
+                }))
+//                cc.director.runScene(new SkillListScene({
+//                    skillList:[
+//                        new SKILL_MODEL_MAP["light-attack"]({
+//                            requireHand: HAND_2_PAIRS
+//                        }),new SKILL_MODEL_MAP["heavy-attack"]({
+//                            requireHand: HAND_FULL_HOUSE
+//                        }),new SKILL_MODEL_MAP["weapon-enchant-fire"]({
+//                            requireHand: HAND_STRAIGHT
+//                        }),new SKILL_MODEL_MAP["shield-up"]({
+//                            requireHand: HAND_HIGH_CARD
+//                        })]
+//                    }));
             }, this);
         startItem.attr({
             x: cc.winSize.width/2,
@@ -59,41 +67,6 @@ var IntroLayer = cc.LayerColor.extend({
     },
     initTutorial:function(){
         tutorialMap = null;
-    },
-    putStack:function(x,y,callback){
-        if ( this.alreadyPutting ) return;
-        this.alreadyPutting = true;
-
-        cc.audioEngine.playEffect(res.chips2_mp3,false);
-
-        var initY = y + 100;
-        var interval = 0.06;
-        var last = 5;
-        var tokenHeight = 10;
-        var tokens = [];
-        for ( var i = 0; i < last; i++ ) {
-            var tokenFrame = _.sample(["token-green.png","token-red.png","token-black.png"])
-            var token = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame(tokenFrame))
-            token.attr({
-                x: x,
-                y: initY,
-                opacity: 0
-            })
-            tokens.push(token)
-            this.addChild(token);
-            token.runAction(cc.sequence(
-                cc.delayTime(i*interval),
-                cc.fadeIn(0.01),
-                cc.moveTo(0.2, x, y+i*tokenHeight).easing(cc.easeOut(3.0)),
-                i === last-1 ? cc.callFunc(function(){
-                    _.each(tokens,function(token){
-                        token.removeFromParent(true);
-                    },this)
-                    this.alreadyPutting = false;
-                    callback.call(this);
-                }, this) : cc.callFunc(function(){}, this)
-            ))
-        }
     }
 });
 

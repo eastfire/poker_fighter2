@@ -5,6 +5,7 @@ var res = {
     card_png : "res/card.png",
 
     intro_png : "res/intro.png",
+    battle_field0 : "res/battle-field0.jpg",
 
     //item effect
     explosion_mp3: "res/explosion.mp3",

@@ -4,13 +4,12 @@ var GENERATE_ITEM_INTERVAL = 5;
 var RARE_SPEED_RATE = 2;
 var MAIN_ACTION_TAG = 1;
 
-var NATURE_SPEED = 180;
+
 
 var MainLayer = cc.LayerColor.extend({
     sprite:null,
     ctor:function (options) {
         this._super(colors.table);
-        this.need_read_fight = options.need_read_fight;
 
         this._touchInstanceUsed = {};
 
@@ -179,41 +178,11 @@ var MainLayer = cc.LayerColor.extend({
         this.addChild(this.countDownLabel, 50);
         this.countDownLabel.setVisible(false);
 
-        if ( this.need_read_fight ) {
-            this.chipSprite = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("ready.png"));
-            this.chipSprite.attr({
-                x:cc.winSize.width/2,
-                y:cc.winSize.height/2
-            })
-            this.addChild(this.chipSprite);
-            this.chipSprite.runAction(new cc.Sequence(
-                new cc.CallFunc(function () {
-                    cc.audioEngine.playEffect(res.ready_mp3, false);
-                }, this),
-                new cc.DelayTime(0.4),
-                new cc.ScaleTo(0.2, 1, 0),
-                new cc.CallFunc(function () {
-                    this.chipSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("fight.png"));
-                }, this),
-                new cc.ScaleTo(0.2, 1, 1),
-                new cc.CallFunc(function () {
-                    cc.audioEngine.playEffect(res.fight_mp3, false);
-                }, this),
-                new cc.DelayTime(0.5),
-                new cc.CallFunc(function () {
-                    this.chipSprite.removeFromParent(true);
-                    this.startNewRound();
-                }, this)
-            ));
-        } else {
-            this.startNewRound();
-        }
-
         this.initEvent();
 
         this.renderBetRate();
 
-        this.scheduleTutorial("main", "takeCard",4)
+        this.startNewRound();
 
         return true;
     },

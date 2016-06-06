@@ -16,13 +16,19 @@ var ALL_SUIT_NUMBERS = [SUIT_NUMBER_BLANK,SUIT_NUMBER_EARTH, SUIT_NUMBER_WATER, 
 var SUIT_ARRAY = ["blank","earth","water","air","fire", "light","dark","sword","shield","hp","mana"];
 
 
-var PokerCardModel = Backbone.Model.extend({
+var PokerCardModel = MovableModel.extend({
     defaults:function(){
-        return {
+        return _.extend(MovableModel.prototype.defaults.call(this),{
             side: "front",
             number : 1,
-            suit: 0,
-            status:[]
-        }
+            suit: SUIT_NUMBER_BLANK,
+            status:[],
+            owner: 0
+        });
+    },
+    discard:function(){
+        var playerModel = fightModel.getPlayerByPosition(this.get("owner"))
+        playerModel.discardCard(this);
+        MovableModel.prototype.discard.call(this);
     }
 });
