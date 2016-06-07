@@ -117,16 +117,16 @@ var SkillListLayer = PlayerRotateLayer.extend({
         var totalHeight = cc.winSize.height - 90;
 
         this.stepY = totalHeight / 10;
-        this.renderSkillMenu( this.findValidSkill(HAND_5_OF_A_KIND),HAND_5_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_STRAIGHT_FLUSH),HAND_STRAIGHT_FLUSH, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_4_OF_A_KIND),HAND_4_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_FULL_HOUSE),HAND_FULL_HOUSE, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_FLUSH),HAND_FLUSH, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_STRAIGHT),HAND_STRAIGHT, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_3_OF_A_KIND),HAND_3_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_2_PAIRS),HAND_2_PAIRS, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_1_PAIR),HAND_1_PAIR, this.currentY ); this.currentY -= this.stepY;
-        this.renderSkillMenu( this.findValidSkill(HAND_HIGH_CARD),HAND_HIGH_CARD, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_5_OF_A_KIND),HAND_5_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_STRAIGHT_FLUSH),HAND_STRAIGHT_FLUSH, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_4_OF_A_KIND),HAND_4_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_FULL_HOUSE),HAND_FULL_HOUSE, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_FLUSH),HAND_FLUSH, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_STRAIGHT),HAND_STRAIGHT, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_3_OF_A_KIND),HAND_3_OF_A_KIND, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_2_PAIRS),HAND_2_PAIRS, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_1_PAIR),HAND_1_PAIR, this.currentY ); this.currentY -= this.stepY;
+        this.renderSkillMenu( findValidSkill(this.skillList,HAND_HIGH_CARD),HAND_HIGH_CARD, this.currentY ); this.currentY -= this.stepY;
     },
     renderFeature: function (cards, feature) {
         var scale = 0.7;
@@ -153,18 +153,7 @@ var SkillListLayer = PlayerRotateLayer.extend({
 
         this.currentY -= this.stepY;
     },
-    findValidSkill:function(handType){
-        do {
-            var skill = this.skillList[handType]
-            if ( skill ) {
-                if ( skill.get("requireHand") === handType || skill.get("acceptHigherHand") ) {
-                    return skill;
-                }
-            }
-            handType--;
-        } while ( handType > 0 )
-        return null;
-    },
+
     renderSkillMenu:function(skillModel, currentHandType, y){
         if ( !skillModel ){
             return;
@@ -191,11 +180,8 @@ var SkillListLayer = PlayerRotateLayer.extend({
         }
     },
     ctor:function(options){
-        var skillList = options.skillList;
-        this.skillList = {};
-        _.each(skillList,function(skillModel){
-            this.skillList[skillModel.get("requireHand")] = skillModel;
-        },this)
+        this.skillList = options.skillList;
+
         this._super(options);
 
         var scale = 0.7;

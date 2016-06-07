@@ -25,5 +25,8 @@ var MovableModel = Backbone.Model.extend({
     },
     discard:function(){
         this.destroy();
+    },
+    getInteractable:function(){
+        return !this.alreadyTaken;
     }
 });

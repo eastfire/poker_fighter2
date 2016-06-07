@@ -8,11 +8,33 @@ var HAND_3_OF_A_KIND = 4
 var HAND_2_PAIRS = 3
 var HAND_1_PAIR = 2
 var HAND_HIGH_CARD = 1
+var HAND_NO_CARD = 0;
 
 var SKILL_TYPE_MELEE = 1;
 var SKILL_TYPE_MAGIC = 2;
 var SKILL_TYPE_PROJECTILE = 3;
 var SKILL_TYPE_DEFEND = 4;
+
+var findValidSkill = function(skillListOrMap, handType){
+    var skillMap = {};
+    if ( typeof skillListOrMap === "object") {
+        skillMap = skillListOrMap;
+    } else {
+        _.each(skillListOrMap, function (skillModel) {
+            skillMap[skillModel.get("requireHand")] = skillModel;
+        })
+    }
+    do {
+        var skill = skillMap[handType]
+        if ( skill ) {
+            if ( skill.get("requireHand") === handType || skill.get("acceptHigherHand") ) {
+                return skill;
+            }
+        }
+        handType--;
+    } while ( handType > 0 )
+    return null;
+}
 
 var SkillModel = Backbone.Model.extend({
     defaults:function(){
@@ -20,10 +42,18 @@ var SkillModel = Backbone.Model.extend({
             level: 1,
             name: "",
             type: SKILL_TYPE_MELEE,
+            isNature: false,
             requireHand: HAND_HIGH_CARD,
             acceptHigherHand: true,
-            cost: 1
+            manaCost: 1
         }
+    },
+    initialize:function(){
+        this.set("manaCost",this.manaCostOfLevel())
+    },
+    manaCostOfLevel:function(level){
+        level = level || this.get("level")
+        return 10;
     },
     onUse:function(hands){
     }

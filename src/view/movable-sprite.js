@@ -1,8 +1,7 @@
 var ACTION_TAG_MOVE = 1000;
 var ACTION_TAG_ROTATE = 1001;
-
-var ACTION_TAG_TAKE_CARD = 1009;
-var ACTION_TAG_FLIP = 1010;
+var ACTION_TAG_TAKE_CARD = 1002;
+var ACTION_TAG_FLIP = 1003;
 
 var BORDER_PADDING = dimens.card_size.width/2+1;
 
@@ -32,6 +31,8 @@ var MovableSprite = cc.Sprite.extend({
 
         this.model.registerDetectCrossX(-BORDER_PADDING);
         this.model.registerDetectCrossX(cc.winSize.width+BORDER_PADDING);
+        this.model.registerDetectCrossY(dimens.player1Y);
+        this.model.registerDetectCrossY(dimens.player2Y);
     },
     initView:function(){
     },
@@ -123,7 +124,7 @@ var MovableSprite = cc.Sprite.extend({
 
     },
     canBeTouch:function(locationInNode){
-        if ( this.model.alreadyTaken ) return false;
+        if ( !this.model.getInteractable()) return false;
         if ( fightModel.get("p2").get("type") == PLAYER_TYPE_AI ) {
             if ( fightModel.get("p1").get("type") == PLAYER_TYPE_AI ) return false;
             if ( this.y > cc.winSize.height/2 + this.height/2 ) return false;
@@ -132,8 +133,7 @@ var MovableSprite = cc.Sprite.extend({
     },
 
     taken:function(player){
-        if ( this.model.alreadyTaken )
-            return;
+        if ( !this.model.getInteractable()) return;
         if ( player.canTake(this.model) ) {
             this.stopMove();
             //TODO stop rotate
@@ -194,7 +194,16 @@ var MovableSprite = cc.Sprite.extend({
         this.model.on("crossX"+(cc.winSize.width+BORDER_PADDING),function(){
             this.model.discard();
         },this)
-
+        this.model.on("crossY"+dimens.player1Y,function(){
+            if ( this.x > cc.winSize.width+BORDER_PADDING || this.x < -BORDER_PADDING ) {
+                this.model.discard();
+            } else this.taken(fightModel.get("p1"))
+        },this)
+        this.model.on("crossY"+dimens.player2Y,function(){
+            if ( this.x > cc.winSize.width+BORDER_PADDING || this.x < -BORDER_PADDING ) {
+                this.model.discard();
+            } else this.taken(fightModel.get("p2"))
+        },this)
     },
     closeEvent:function(){
         this.model.off("destroy",this.onDestroy);

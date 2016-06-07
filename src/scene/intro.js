@@ -24,7 +24,11 @@ var IntroLayer = cc.LayerColor.extend({
             function () {
                 cc.director.runScene(new FightScene({
                     p1: new HeroModel({
-                        position: PLAYER_POSITION_DOWN
+                        position: PLAYER_POSITION_DOWN,
+                        equipments:[
+                            new EQUIPMENT_MODEL_MAP.shortSword(),
+                            new EQUIPMENT_MODEL_MAP.smallShield()
+                        ]
                     }),
                     p2: new EnemyModel({
                         position: PLAYER_POSITION_UP

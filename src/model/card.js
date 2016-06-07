@@ -23,7 +23,7 @@ var PokerCardModel = MovableModel.extend({
             number : 1,
             suit: SUIT_NUMBER_BLANK,
             status:[],
-            owner: 0
+            owner: PLAYER_POSITION_DOWN
         });
     },
     discard:function(){

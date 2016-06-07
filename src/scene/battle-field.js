@@ -1,7 +1,9 @@
 var FightLayer = cc.Layer.extend({
-    ctor:function() {
+    ctor:function(options) {
         this._super();
 //        this._super();
+        this.model = options.model;
+
         this._touchInstanceUsed = {};
 
         var sprite = new cc.Sprite(res.battle_field0);
@@ -11,23 +13,41 @@ var FightLayer = cc.Layer.extend({
         })
         this.addChild(sprite);
 
-        var card = new PokerCardSprite({
-            model: new PokerCardModel({
-                suit: SUIT_NUMBER_FIRE,
-                number: 10,
-                owner: PLAYER_POSITION_DOWN
+        for ( var i = 0; i < 5; i++) {
+            var card = new PokerCardSprite({
+                model: new PokerCardModel({
+                    suit: SUIT_NUMBER_FIRE,
+                    number: 8+i,
+                    owner: PLAYER_POSITION_DOWN
+                })
             })
-        })
-        card.attr({
-            x: 100,y:100
-        })
-        this.addChild(card);
+            card.attr({
+                x: 100, y: 100*i+150
+            })
+            this.addChild(card);
+        }
 
-        card.moveToPosition(cc.winSize.width+150,300,200)
+        //card.moveToPosition(cc.winSize.width+150,300,200)
 
         window.testCard = card;
 
         this.initEvent();
+
+        this.initCharacterPanel();
+    },
+    initCharacterPanel: function () {
+        this.p1Panel = new CharacterPanel({model:this.model.get("p1")})
+        this.p1Panel.attr({
+            x: cc.winSize.width/2,
+            y: dimens.player1Y/2
+        })
+        this.addChild(this.p1Panel)
+        this.p2Panel = new CharacterPanel({model:this.model.get("p2")})
+        this.p2Panel.attr({
+            x: cc.winSize.width/2,
+            y: cc.winSize.height - dimens.player1Y/2
+        })
+        this.addChild(this.p2Panel)
     },
     initEvent:function(){
         cc.eventManager.addListener(this.listener = cc.EventListener.create({
@@ -63,7 +83,7 @@ var FightLayer = cc.Layer.extend({
                 if ( fightModel.get("p2").get("type") === PLAYER_TYPE_AI && locationInNode.y > cc.winSize.height/2 ) return;
                 var touchId = cc.sys.isNative ? touch.getID() : touch.__instanceId;
                 _.each( target.getChildren(), function(sprite){
-                    if ( sprite instanceof MovableSprite && !sprite.model.alreadyTaken && (!target._touchInstanceUsed[touchId] || sprite.touchingInstanceId === touchId ) ) {
+                    if ( sprite instanceof MovableSprite && sprite.model.getInteractable() && (!target._touchInstanceUsed[touchId] || sprite.touchingInstanceId === touchId ) ) {
                         var padding = 0;
                         var realWidth = sprite.contentSprite.width*sprite.contentSprite.scaleX;
                         var realHeight = sprite.contentSprite.height*sprite.contentSprite.scaleY;
@@ -111,7 +131,7 @@ var FightLayer = cc.Layer.extend({
                 var prevLocationInNode = target.convertToNodeSpace(touch.getPreviousLocation());
                 var touchId = cc.sys.isNative ? touch.getID() : touch.__instanceId;
                 _.each( target.getChildren(), function(sprite){
-                    if ( sprite instanceof MovableSprite && !sprite.model.alreadyTaken ) {
+                    if ( sprite instanceof MovableSprite && sprite.model.getInteractable() ) {
                         //Check the click area
                         if ( sprite.touchingInstanceId === touchId ){
                             sprite.touchingInstanceId = null;

@@ -1,6 +1,7 @@
 var CharacterPanel = cc.Sprite.extend({
     ctor:function(options) {
         this._super();
+        this.model = options.model;
     },
     onEnter:function(){
         this._super();
@@ -17,6 +18,9 @@ var CharacterPanel = cc.Sprite.extend({
     },
     closeEvent:function(){
         this.model.off("change:hands",this.onHandChange);
+    },
+    render:function(){
+
     },
     onHandChange:function(){
         var needCurve = true;
@@ -62,17 +66,12 @@ var CharacterPanel = cc.Sprite.extend({
             var sprite = this.getParent().getChildByName(cardModel.cid);
             if ( sprite != null ) {
                 if ( sprite.x != x || sprite.y != y) {
-                    sprite.stopActionByTag(ACTION_TAG_MOVING);
-                    sprite.contentSprite.stopActionByTag(ACTION_TAG_RATATE);
-                    sprite.runAction(new cc.MoveTo(times.card_sort, realX, realY)).setTag(ACTION_TAG_MOVING);
-                    sprite.contentSprite.runAction(new cc.RotateTo(times.card_sort, cardAngle, cardAngle)).setTag(ACTION_TAG_RATATE);
+                    sprite.stopMove();
+                    sprite.stopActionByTag(ACTION_TAG_TAKE_CARD);
+                    sprite.contentSprite.stopActionByTag(ACTION_TAG_ROTATE);
+                    sprite.runAction(new cc.MoveTo(times.card_sort, realX, realY)).setTag(ACTION_TAG_TAKE_CARD);
+                    sprite.contentSprite.runAction(new cc.RotateTo(times.card_sort, cardAngle, cardAngle)).setTag(ACTION_TAG_ROTATE);
                     if ( sprite.isNewHand ) {
-                        if ( !this.isHandVisible() ) {
-                            sprite.contentSprite.stopActionByTag(ACTION_TAG_FLIPPING);
-                            sprite.contentSprite.runAction(sprite.getFlipToBackSequence()).setTag(ACTION_TAG_FLIPPING);
-                        } else {
-                            sprite.contentSprite.runAction(cc.scaleTo(times.flip,1,1));
-                        }
                         sprite.isNewHand = false;
                     }
                 }
@@ -82,8 +81,6 @@ var CharacterPanel = cc.Sprite.extend({
             x += stepX;
         },this);
 
-//        if ( cards.length == MAX_HAND ) {
-//            gameModel.trigger("start-countdown", gameModel);
-//        }
+        this.model.checkFullHand();
     }
 })
