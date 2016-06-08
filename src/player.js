@@ -639,13 +639,7 @@ var PlayerSprite = cc.Sprite.extend({
         this.model.on("change:shield",this.onShieldChange,this);
     },
     closeEvent:function(){
-        this.model.off("change:hands",this.onHandChange);
-        this.model.off("change:money",this.onMoneyChange);
-        this.model.off("change:spy",this.onSpyChange);
-        this.model.off("change:showHand",this.onShowHandChange);
-        this.model.off("change:forbid",this.onForbidChange);
-        this.model.off("change:tornado",this.onTornadoChange);
-        this.model.off("change:shield",this.onShieldChange);
+        this.model.off(null,null,this);
     },
     renderMoney:function(){
         var prevMoney = this.model.previous("money");

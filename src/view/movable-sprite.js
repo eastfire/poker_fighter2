@@ -3,9 +3,13 @@ var ACTION_TAG_ROTATE = 1001;
 var ACTION_TAG_TAKE_CARD = 1002;
 var ACTION_TAG_FLIP = 1003;
 
-var BORDER_PADDING = dimens.card_size.width/2+1;
+var BORDER_PADDING = dimens.card_size.width+1;
+var BORDER_PADDING_STRICT = dimens.card_size.width/2+1;
 
 var NATURE_SPEED = 180;
+
+//["blank","earth","water","air","fire", "light","dark","sword","shield","hp","mana"]
+var RED_NUMBER_SUIT = [ false, false, true, false, true, false, false, true, false, true, false ]
 
 var MovableMoveToAction = cc.MoveTo.extend({
     update:function(dt){
@@ -155,7 +159,7 @@ var MovableSprite = cc.Sprite.extend({
             this.contentSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("card-blank.png"));
             var suit = this.model.get("suit");
 
-            var r = ( suit === SUIT_NUMBER_WATER || suit === SUIT_NUMBER_FIRE )?"r":"";
+            var r = RED_NUMBER_SUIT[suit]?"r":"";
             if ( this.model.get("number") ) {
                 this.numberSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("number-" + this.model.get("number") + r + ".png"));
                 this.numberDownSprite.setSpriteFrame(cc.spriteFrameCache.getSpriteFrame("number-" + this.model.get("number") + r + ".png"));
@@ -195,19 +199,18 @@ var MovableSprite = cc.Sprite.extend({
             this.model.discard();
         },this)
         this.model.on("crossY"+dimens.player1Y,function(){
-            if ( this.x > cc.winSize.width+BORDER_PADDING || this.x < -BORDER_PADDING ) {
+            if ( this.x > cc.winSize.width+BORDER_PADDING_STRICT || this.x < -BORDER_PADDING_STRICT ) {
                 this.model.discard();
             } else this.taken(fightModel.get("p1"))
         },this)
         this.model.on("crossY"+dimens.player2Y,function(){
-            if ( this.x > cc.winSize.width+BORDER_PADDING || this.x < -BORDER_PADDING ) {
+            if ( this.x > cc.winSize.width+BORDER_PADDING_STRICT || this.x < -BORDER_PADDING_STRICT ) {
                 this.model.discard();
             } else this.taken(fightModel.get("p2"))
         },this)
     },
     closeEvent:function(){
-        this.model.off("destroy",this.onDestroy);
-        this.model.off("change:speed",this.changeSpeed)
+        this.model.off(null,null,this);
     },
     onDestroy:function(){
         this.release();

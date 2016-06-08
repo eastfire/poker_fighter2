@@ -13,7 +13,7 @@
 
     "jsList" : [
         "src/libs/underscore-min.js",
-        "src/libs/backbone-min.js",
+        "src/libs/backbone.js",
         "src/libs/utils.js",
         "src/resource.js",
         "src/game-common.js",
@@ -23,6 +23,7 @@
         "src/res/times.js",
         "src/model/movable.js",
         "src/model/hand-type.js",
+        "src/model/pattern.js",
         "src/model/card.js",
         "src/model/equipment.js",
         "src/model/skill.js",

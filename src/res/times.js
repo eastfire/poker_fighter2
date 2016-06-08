@@ -2,7 +2,9 @@
 
 var times = {
     card_sort : 0.1,
+    cardUsed: 0.2,
     performSkill: 0.2,
+
     flip: 0.2,
     quickFlip: 0.1,
     takeCard: 0.3,

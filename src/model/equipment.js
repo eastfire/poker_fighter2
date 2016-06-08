@@ -6,7 +6,8 @@ var EquipmentModel = Backbone.Model.extend({
             type:"",
             subtype:"",
             requirements:null,
-            skillEntries:[]
+            skillEntries:[],
+            provideCards:[]
         }
     },
     initialize:function(){
@@ -32,7 +33,12 @@ EQUIPMENT_MODEL_MAP.shortSword = EquipmentModel.extend({
             },{
                 name: "heavy-attack",
                 requireHand: HAND_FULL_HOUSE
-            }]
+            }],
+            provideCards:[
+                {suit:SUIT_NUMBER_SWORD, number: 5},
+                {suit:SUIT_NUMBER_SWORD, number: 6},
+                {suit:SUIT_NUMBER_SWORD, number: 7}
+            ]
         });
     }
 })
@@ -44,7 +50,11 @@ EQUIPMENT_MODEL_MAP.smallShield = EquipmentModel.extend({
             skillEntries:[{
                 name: "shield-up",
                 requireHand: HAND_HIGH_CARD
-            }]
+            }],
+            provideCards:[
+                {suit:SUIT_NUMBER_SHIELD, number: 2},
+                {suit:SUIT_NUMBER_SHIELD, number: 3}
+            ]
         });
     }
 })

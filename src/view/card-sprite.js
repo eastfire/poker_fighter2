@@ -26,5 +26,20 @@ var PokerCardSprite = MovableSprite.extend({
             rotation: 180
         });
         this.contentSprite.addChild(this.numberDownSprite, 0);
+    },
+    initEvent:function(){
+        this._super();
+        this.model.on("used",this.onUsed,this)
+    },
+    onUsed:function(){
+        this.runAction(cc.sequence(
+            cc.spawn(
+                cc.scaleTo(times.cardUsed, 0.2,0.2),
+                cc.fadeOut(times.cardUsed)
+            ),
+            cc.callFunc(function(){
+                this.model.discard();
+            },this)
+        ))
     }
 })

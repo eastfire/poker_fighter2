@@ -31,7 +31,7 @@ var IntroLayer = cc.LayerColor.extend({
                         ]
                     }),
                     p2: new EnemyModel({
-                        position: PLAYER_POSITION_UP
+
                     })
 
                 }))

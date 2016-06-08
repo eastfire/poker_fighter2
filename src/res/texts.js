@@ -33,6 +33,9 @@ var texts_locale = {
             "high-card": "散牌",
             "no-card": "没牌"
         },
+        handTypeById:[
+            "没牌","散牌","一对","两对","三条","顺子","同花","满堂红","四条","同花顺","五条"
+        ],
 
         skill:{
             "light-attack":{

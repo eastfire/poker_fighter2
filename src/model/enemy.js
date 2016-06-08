@@ -5,7 +5,9 @@ var EnemyModel = CharacterModel.extend({
     defaults:function() {
         return _.extend(CharacterModel.prototype.defaults.call(this),{
             exp: 0,
-            score: 0
+            score: 0,
+            type: PLAYER_TYPE_AI,
+            position: PLAYER_POSITION_UP
         });
     },
     initialize:function(){

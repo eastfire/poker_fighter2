@@ -6,45 +6,12 @@ var PLAYER_POSITION_UP = 1;
 var PLAYER_TYPE_PLAYER = 0;
 var PLAYER_TYPE_AI = 1;
 
-var ALL_NUMBERS = [2,3,4,5,6,7,8,9,10,11,12,13,14];
-
-var STRAIGHT_MAP = {
-    "14-3-2":true,
-    "4-3-2":true,
-    "5-4-3":true,
-    "6-5-4":true,
-    "7-6-5":true,
-    "8-7-6":true,
-    "9-8-7":true,
-    "10-9-8":true,
-    "11-10-9":true,
-    "12-11-10":true,
-    "13-12-11":true,
-    "14-13-12":true,
-
-    "14-4-3-2":true,
-    "5-4-3-2":true,
-    "6-5-4-3":true,
-    "7-6-5-4":true,
-    "8-7-6-5":true,
-    "9-8-7-6":true,
-    "10-9-8-7":true,
-    "11-10-9-8":true,
-    "12-11-10-9":true,
-    "13-12-11-10":true,
-    "14-13-12-11":true,
-
-    "14-5-4-3-2":true,
-    "6-5-4-3-2":true,
-    "7-6-5-4-3":true,
-    "8-7-6-5-4":true,
-    "9-8-7-6-5":true,
-    "10-9-8-7-6":true,
-    "11-10-9-8-7":true,
-    "12-11-10-9-8":true,
-    "13-12-11-10-9":true,
-    "14-13-12-11-10":true
-};
+var STANDARD_DECK = [
+    {suit:SUIT_NUMBER_EARTH, number:7},{suit:SUIT_NUMBER_EARTH, number:8},{suit:SUIT_NUMBER_EARTH, number:9},{suit:SUIT_NUMBER_EARTH, number:10},{suit:SUIT_NUMBER_EARTH, number:11},{suit:SUIT_NUMBER_EARTH, number:12},{suit:SUIT_NUMBER_EARTH, number:13},
+    {suit:SUIT_NUMBER_WATER, number:7},{suit:SUIT_NUMBER_WATER, number:8},{suit:SUIT_NUMBER_WATER, number:9},{suit:SUIT_NUMBER_WATER, number:10},{suit:SUIT_NUMBER_WATER, number:11},{suit:SUIT_NUMBER_WATER, number:12},{suit:SUIT_NUMBER_WATER, number:13},
+    {suit:SUIT_NUMBER_AIR, number:7},{suit:SUIT_NUMBER_AIR, number:8},{suit:SUIT_NUMBER_AIR, number:9},{suit:SUIT_NUMBER_AIR, number:10},{suit:SUIT_NUMBER_AIR, number:11},{suit:SUIT_NUMBER_AIR, number:12},{suit:SUIT_NUMBER_AIR, number:13},
+    {suit:SUIT_NUMBER_FIRE, number:7},{suit:SUIT_NUMBER_FIRE, number:8},{suit:SUIT_NUMBER_FIRE, number:9},{suit:SUIT_NUMBER_FIRE, number:10},{suit:SUIT_NUMBER_FIRE, number:11},{suit:SUIT_NUMBER_FIRE, number:12},{suit:SUIT_NUMBER_FIRE, number:13}
+]
 
 var CharacterModel = Backbone.Model.extend({
     defaults:function(){
@@ -67,7 +34,7 @@ var CharacterModel = Backbone.Model.extend({
 
             dexterity: 0, // dodge attack
             reflection: 10, // card speed
-            stamina: 3, //card number + card appear duration
+            stamina: 10, //card number + card appear duration
 
             
             earthResist: 0,
@@ -77,9 +44,7 @@ var CharacterModel = Backbone.Model.extend({
             lightResist: 0,
             darkResist: 0,
             
-            deck: [],
-            discardDeck: [],
-            outCards: [],
+            deck: STANDARD_DECK,
             hands: [],
             
             equipments: [],
@@ -91,19 +56,77 @@ var CharacterModel = Backbone.Model.extend({
     },
     initialize:function(){
         this.__skillMap = {};
+        this.__deck = _.map(this.get("deck"),function(entry){
+            return new PokerCardModel(entry)
+        });
         _.each( this.get("equipments"),function(equipmentModel){
             _.each(equipmentModel.getSkills(),function(skillModel){
                 this.__skillMap[skillModel.get("requireHand")] = skillModel;
             },this)
+            _.each(equipmentModel.get("provideCards"),function(cardEntry){
+                this.__deck.push(new PokerCardModel(cardEntry))
+            },this);
         },this)
+
+        this.__deck = _.shuffle(this.__deck);
+        this.__discardDeck = [];
+
+        this.__outCards = [];
 
         this.__performingSkill = false;
         this.__skillWaitingMana = null;
 
+        this.__currentCardPattern = null;
         this.on("change:mana",this.onManaChange,this)
+    },
+    maintain:function(){
+
     },
     getMaxHpOfLevel:function(l){
 
+    },
+    getPattern:function(){
+        if ( !this.__currentCardPattern ) {
+            this.__currentCardPattern = new PatternModel(); //TODO sample from poll effect by stamina
+        }
+        return this.__currentCardPattern;
+    },
+    getGenerateCardStrategy:function(){
+        var pattern = this.getPattern();
+        var strategy = pattern.getCardStrategy();
+        if ( !strategy ) {
+            this.__currentCardPattern = null;
+            return {
+                type: "delay",
+                time: 4  //TODO effect by stamina
+            }
+        }
+        if ( strategy.type === "delay" ) {
+            return strategy;
+        } else {
+            var cardModel = this.drawCard();
+
+            if ( !cardModel ) return {
+                type: "delay",
+                time: 2
+            }
+            if ( strategy.type === "card" ) {
+                strategy.card = cardModel;
+                strategy.speed = NATURE_SPEED; //TODO effect by reflection
+                return strategy;
+            }
+        }
+    },
+    drawCard:function(){
+        if ( !this.__deck.length ) {
+            this.__deck = _.shuffle(this.__discardDeck);
+            this.__discardDeck = [];
+        }
+        var cardModel = this.__deck.pop();
+        if ( cardModel ) {
+            this.__outCards.push(cardModel)
+        }
+        return cardModel;
     },
     canTake:function(model){
         if ( model instanceof PokerCardModel ) {
@@ -121,9 +144,9 @@ var CharacterModel = Backbone.Model.extend({
         this.trigger("change:hands",this);
     },
     addHand:function(cardModel){
-        this.set("outCards", _.reject(this.get("outCards"),function(c){
+        this.__outCards = _.reject(this.__outCards,function(c){
             return c === cardModel
-        },this));
+        },this);
         var cards = this.get("hands");
         cards.push(cardModel);
         this.sortHand();
@@ -136,21 +159,18 @@ var CharacterModel = Backbone.Model.extend({
     onOpponentGetCard:function(cardModel){
 
     },
-    drawCard:function(){
-
-    },
     discardCard:function(cardModel){
         if ( cardModel instanceof PokerCardModel ) {
             if ( cardModel.get("owner") !== this.get("position") ) {
                 cc.error("not card owned");
             }
-            this.set("outCards", _.reject(this.get("outCards"),function(c){
+            this.__outCards = _.reject(this.__outCards,function(c){
                 return c === cardModel
-            },this));
+            },this);
             this.set("hands", _.reject(this.get("hands"),function(c){
                 return c === cardModel
             },this));
-            this.get("discardDeck").push(new PokerCardModel({
+            this.__discardDeck.push(new PokerCardModel({
                 number: cardModel.get("number"),
                 suit: cardModel.get("suit")
             }))
@@ -160,168 +180,15 @@ var CharacterModel = Backbone.Model.extend({
         var hands = this.get("hands");
         if ( hands.length >= MAX_HAND ) {
             this.trigger("hand-full", this)
-            var feature = this.getFeature();
+            var feature = getHandFeature(this.get("hands"));
             var skillModel = findValidSkill(this.__skillMap, feature.typeId )
-            if ( skillModel && this.canPerformSkill(skillModel) ) {
-                this.tryPerformSkill(skillModel, feature.typeId);
+            if ( skillModel && this.canPerformSkill(skillModel, feature) ) {
+                this.tryPerformSkill(skillModel, feature);
             }
         }
     },
 
-    is5ofAKind:function(cards) {
-        if (cards[0].get("number") === cards[1].get("number") && cards[0].get("number") === cards[2].get("number") && cards[0].get("number") === cards[3].get("number") && cards[0].get("number") === cards[4].get("number") ) {
-            return true;
-        }
-        return false;
-    },
-    isFlushStraight:function(cards){
-        return this.isFlush(cards) && this.isStraight(cards);
-    },
-    is4ofAKind:function(cards){
-        if (cards[0].get("number") === cards[1].get("number") && cards[0].get("number") === cards[2].get("number") && cards[0].get("number") === cards[3].get("number") ) {
-            return cards[0];
-        } else if ( cards[1].get("number") === cards[2].get("number") && cards[1].get("number") === cards[3].get("number") && cards[1].get("number") === cards[4].get("number") ) {
-            return cards[1];
-        }
-        return false
-    },
-    isFullHouse:function(cards){
-        if (cards[0].get("number") === cards[1].get("number") &&
-            cards[0].get("number") === cards[2].get("number") &&
-            cards[3].get("number") === cards[4].get("number") ) {
-            return cards[0];
-        } else if ( cards[0].get("number") === cards[1].get("number") &&
-            cards[2].get("number") === cards[3].get("number") &&
-            cards[3].get("number") === cards[4].get("number")) {
-            return cards[2];
-        }
-        return false;
-    },
-    isStraight:function(cards){
-        var v = _.map (cards, function(card){
-            return card.get("number");
-        },this).join("-");
-        return STRAIGHT_MAP[v];
-    },
-    is3ofAKind:function(cards){
-        if (cards[0].get("number") === cards[1].get("number") && cards[0].get("number") === cards[2].get("number") ) {
-            return cards[0];
-        } else if (cards[1].get("number") === cards[2].get("number") && cards[1].get("number") === cards[3].get("number") ) {
-            return cards[1];
-        } else if (cards[2].get("number") === cards[3].get("number") && cards[2].get("number") === cards[4].get("number") ) {
-            return cards[2];
-        }
-        return false
-    },
-    isFlush:function(cards){
-        var v = cards[0].get("suit");
-        if ( v === SUIT_NUMBER_BLANK ) return false;
-        for ( var i = 1; i < cards.length ; i++ ){
-            if ( v != cards[i].get("suit") || cards[i].get("suit") === SUIT_NUMBER_BLANK)
-                return false;
-        }
-        return true;
-    },
-    is2Pair: function(cards){
-        if ( cards[0].get("number") === cards[1].get("number") && cards[2].get("number") === cards[3].get("number") ) {
-            return cards[0];
-        } else if ( cards[0].get("number") === cards[1].get("number") && cards[3].get("number") === cards[4].get("number") ) {
-            return cards[0];
-        } else if ( cards[1].get("number") === cards[2].get("number") && cards[3].get("number") === cards[4].get("number") ) {
-            return cards[1];
-        }
-        return false;
-    },
-    isPair: function(cards){
-        if ( cards[0].get("number") === cards[1].get("number") ){
-            return cards[0];
-        } else if ( cards[1].get("number") === cards[2].get("number") ){
-            return cards[1];
-        } else if ( cards[2].get("number") === cards[3].get("number") ){
-            return cards[2];
-        } else if ( cards[3].get("number") === cards[4].get("number") ){
-            return cards[3];
-        }
-        return false;
-    },
-    getFeature: function(){
-        var hands = this.get("hands");
-        var cards = [];
-        _.each(hands, function(cardModel){
-            cards.push(cardModel);
-        },this);
-        for ( var i = this.get("hands").length; i < MAX_HAND; i++ ) {
-            cards.push( new PokerCardModel({
-                number : -i,
-                suit: SUIT_NUMBER_BLANK
-            }))
-        }
 
-        var power, type, theCard, rate,typeId;
-        if ( this.is5ofAKind(cards) ) {
-            power = 11000 + cards[0].get("number") * 20// + (19 - cards[0].get("suit"));
-            type = "five-of-a-kind"
-            rate = 100;
-            typeId = HAND_5_OF_A_KIND;
-            //cc.sys.localStorage.setItem("fiveOfAKindAppeared",true);
-        } else if ( this.isFlushStraight(cards) ) {
-            power = 10000 + cards[0].get("number") * 20// + (19 - cards[0].get("suit"));
-            type = "straight-flush"
-            rate = 50;
-            typeId = HAND_STRAIGHT_FLUSH;
-        } else if ( theCard = this.is4ofAKind(cards) ) {
-            power = 9000 + theCard.get("number") * 20// + (19 - theCard.get("suit"));
-            type = "four-of-a-kind";
-            rate = 40;
-            typeId = HAND_4_OF_A_KIND;
-        } else if ( theCard = this.isFullHouse(cards) ) {
-            power = 8000 + theCard.get("number") * 20// + (19 - theCard.get("suit"));
-            type = "full-house";
-            rate = 30;
-            typeId = HAND_FULL_HOUSE;
-        } else if ( this.isFlush(cards) ) {
-            power = 7000 + cards[0].get("number") * 20// + (19 - cards[0].get("suit"));
-            type = "flush";
-            rate = 20;
-            typeId = HAND_FLUSH;
-        } else if ( this.isStraight(cards) ) {
-            power = 6000 + cards[0].get("number") * 20// + (19 - cards[0].get("suit"));
-            type = "straight";
-            rate = 15;
-            typeId = HAND_STRAIGHT;
-        } else if ( theCard = this.is3ofAKind(cards) ) {
-            power = 5000 + theCard.get("number") * 20// + (19 -theCard.get("suit"));
-            type = "three-of-a-kind";
-            rate = 10;
-            typeId = HAND_3_OF_A_KIND;
-        } else if ( theCard = this.is2Pair(cards) ) {
-            power = 4000 + theCard.get("number") * 20// + (19 -theCard.get("suit"));
-            type = "two-pair";
-            rate = 4;
-            typeId = HAND_2_PAIRS;
-        } else if ( theCard = this.isPair(cards) ) {
-            power = 3000 + theCard.get("number") * 20// + (19 -theCard.get("suit"));
-            type = "one-pair";
-            rate = 2;
-            typeId = HAND_1_PAIR;
-        } else if ( cards[0].get("number") > 0 ) {
-            power = 2000 + cards[0].get("number") * 20// + (19 -cards[0].get("suit"));
-            type = "high-card";
-            rate = 1;
-            typeId = HAND_HIGH_CARD;
-        } else {
-            power = 0;
-            type = "no-card";
-            rate = 0;
-            typeId = HAND_NO_CARD;
-        }
-        return {
-            power: power,
-            type: type,
-            rate: rate,
-            typeId: typeId
-        }
-    },
     calculateWantAndHate:function(){
         var hands = this.get("hands");
         this.wantNumber = [];
@@ -446,7 +313,7 @@ var CharacterModel = Backbone.Model.extend({
         }
     },
 
-    canPerformSkill:function(skillModel){
+    canPerformSkill:function(skillModel, feature){
         return true
     },
 
@@ -456,26 +323,26 @@ var CharacterModel = Backbone.Model.extend({
             this.__skillWaitingMana = null;
         }
     },
-    tryPerformSkill:function(skillModel, handTypeId){
-        this.trigger("before-perform-skill", skillModel, handTypeId);
+    tryPerformSkill:function(skillModel, feature){
+        this.trigger("before-perform-skill", skillModel, feature);
         this.__performingSkill = true;
         var cards = _.map(this.get("hands"),function(cardModel){return cardModel});
         _.each(cards,function(cardModel){
-            cardModel.discard()
+            cardModel.trigger("used")
         })
         if ( skillModel.get("manaCost") <= this.get("mana") ) {
-            this.realPerformSkill(skillModel);
+            this.realPerformSkill(skillModel, feature);
         } else {
             this.__skillWaitingMana = skillModel;
-            this.trigger("wait-mana", skillModel);
+            this.trigger("wait-mana", skillModel, feature);
         }
     },
-    realPerformSkill:function(skillModel){
+    realPerformSkill:function(skillModel, feature){
         this.set("mana",this.get("mana") - skillModel.get("manaCost"));
-        this.trigger("perform-skill", skillModel);
+        this.trigger("perform-skill", skillModel, feature);
     },
 
-    afterPerformSkill:function(skillModel){ //called by view
+    afterPerformSkill:function(skillModel, feature){ //called by view
         this.__performingSkill = false;
     }
 })

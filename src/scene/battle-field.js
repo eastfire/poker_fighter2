@@ -13,27 +13,80 @@ var FightLayer = cc.Layer.extend({
         })
         this.addChild(sprite);
 
-        for ( var i = 0; i < 5; i++) {
-            var card = new PokerCardSprite({
-                model: new PokerCardModel({
-                    suit: SUIT_NUMBER_FIRE,
-                    number: 8+i,
-                    owner: PLAYER_POSITION_DOWN
-                })
-            })
-            card.attr({
-                x: 100, y: 100*i+150
-            })
-            this.addChild(card);
-        }
-
-        //card.moveToPosition(cc.winSize.width+150,300,200)
-
-        window.testCard = card;
-
         this.initEvent();
 
         this.initCharacterPanel();
+
+        var self = this;
+        this.schedulePerSec = function () {
+            if ( self.model.get("status") !== "game" ) return;
+            self.model.get("p1").maintain();
+            self.model.get("p2").maintain();
+
+            if ( self.model.generateCardCountDown <= 0 ) {
+                self.generateCards.call(self);
+                self.model.generateCardCountDown = GENERATE_CARD_INTERVAL;
+            }
+            self.model.generateCardCountDown--;
+
+            self.model.set("totalTime", self.model.get("totalTime")+1);
+        }
+        this.scheduleP1Card = function(){
+            var strategy = self.model.get("p1").getGenerateCardStrategy();
+            if ( strategy.type === "delay" ) {
+                self.scheduleOnce(function(){
+                    self.scheduleP1Card.call();
+                }, strategy.time);
+                return;
+            } else if ( strategy.type === "card" ) {
+                var cardSprite = new PokerCardSprite({
+                    model: strategy.card
+                })
+                cardSprite.attr({
+                    x:strategy.start.x,
+                    y:strategy.start.y
+                })
+                self.addChild(cardSprite)
+                cardSprite.moveToPosition(strategy.end, strategy.speed);
+                self.scheduleP1Card();
+            }
+        }
+        this.scheduleP2Card = function(){
+            var strategy = self.model.get("p2").getGenerateCardStrategy();
+            if ( strategy.type === "delay" ) {
+                self.scheduleOnce(function(){
+                    self.scheduleP2Card.call();
+                }, strategy.time);
+                return;
+            } else if ( strategy.type === "card" ) {
+
+                var cardSprite = new PokerCardSprite({
+                    model: strategy.card
+                })
+                cardSprite.attr({
+                    x:strategy.start.x,
+                    y:cc.winSize.height - strategy.start.y,
+                    rotation: 180
+                })
+                self.addChild(cardSprite)
+                cardSprite.moveToPosition(strategy.end.x, cc.winSize.height - strategy.end.y, strategy.speed);
+                self.scheduleP2Card();
+            }
+        }
+
+        this.fightStart();
+    },
+    gameOver:function(){
+
+    },
+
+    fightStart:function(){
+        this.schedule(this.schedulePerSec, 1);
+        this.scheduleOnce(this.scheduleP1Card,0.1);
+        this.scheduleOnce(this.scheduleP2Card,0.1);
+    },
+    fightOver:function(){
+        this.unschedule(this.schedulePerSec);
     },
     initCharacterPanel: function () {
         this.p1Panel = new CharacterPanel({model:this.model.get("p1")})
