@@ -6,16 +6,13 @@ var FightLayer = cc.Layer.extend({
 
         this._touchInstanceUsed = {};
 
-        var sprite = new cc.Sprite(res.battle_field0);
-        sprite.attr({
-            x: cc.winSize.width / 2,
-            y: cc.winSize.height / 2
-        })
-        this.addChild(sprite);
+        this.initBackground();
 
         this.initEvent();
 
         this.initCharacterPanel();
+
+        this.initCharacter();
 
         var self = this;
         this.schedulePerSec = function () {
@@ -79,7 +76,14 @@ var FightLayer = cc.Layer.extend({
     gameOver:function(){
 
     },
-
+    initBackground:function() {
+        var sprite = new cc.Sprite(res.battle_field1);
+        sprite.attr({
+            x: cc.winSize.width / 2,
+            y: cc.winSize.height / 2
+        })
+        this.addChild(sprite);
+    },
     fightStart:function(){
         this.schedule(this.schedulePerSec, 1);
         this.scheduleOnce(this.scheduleP1Card,0.1);
@@ -101,6 +105,20 @@ var FightLayer = cc.Layer.extend({
             y: cc.winSize.height - dimens.player1Y/2
         })
         this.addChild(this.p2Panel)
+    },
+    initCharacter:function(){
+        this.p1Sprite = new CharacterSprite({model:this.model.get("p1")})
+        this.p1Sprite.attr({
+            x: cc.winSize.width/2,
+            y: dimens.player1Y + 40
+        })
+        this.addChild(this.p1Sprite)
+        this.p2Sprite = new CharacterSprite({model:this.model.get("p2")})
+        this.p2Sprite.attr({
+            x: cc.winSize.width/2,
+            y: cc.winSize.height - dimens.player1Y - 40
+        })
+        this.addChild(this.p2Sprite)
     },
     initEvent:function(){
         cc.eventManager.addListener(this.listener = cc.EventListener.create({

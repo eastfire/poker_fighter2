@@ -3,6 +3,131 @@ var CharacterPanel = cc.Sprite.extend({
         this._super();
         this.model = options.model;
 
+        this.initHpBar();
+        this.initManaBar();
+
+        this.initSkillLabel();
+    },
+    initHpBar:function(){
+        var hpIcon = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("icon-hp.png"))
+        var hpBarBg = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("bar.png"))
+        this.hpBar = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("hp-bar.png"))
+        if (this.model.get("position") === PLAYER_POSITION_UP) {
+            hpBarBg.attr({
+                x: -cc.winSize.width/2 + 22,
+                y: -45,
+                scaleX: 2,
+                scaleY: 2,
+                anchorX: 0,
+                anchorY:0.5
+            })
+            hpIcon.attr({
+                x: -cc.winSize.width/2 + 10,
+                y: -45,
+                scaleX: 0.5,
+                scaleY: 0.5
+            })
+            this.hpBar.attr({
+                x: 2,
+                y: 6,
+                scaleX: 0,
+                anchorX: 0,
+                anchorY:0.5
+            })
+        } else {
+            hpBarBg.attr({
+                x: -cc.winSize.width/2 + 22,
+                y: 60,
+                scaleX: 2,
+                scaleY: 2,
+                anchorX: 0
+            })
+            hpIcon.attr({
+                x: -cc.winSize.width/2 + 10,
+                y: 60,
+                scaleX: 0.5,
+                scaleY: 0.5
+            })
+            this.hpBar.attr({
+                x: 2,
+                y: 6,
+                scaleX: 0,
+                anchorX: 0,
+                anchorY:0.5
+            })
+        }
+        this.addChild(hpIcon);
+        this.addChild(hpBarBg);
+        hpBarBg.addChild(this.hpBar);
+
+
+        this.renderHp();
+    },
+    initManaBar:function(x,y){
+        var manaIcon = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("icon-mana.png"))
+        var manaBarBg = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("bar.png"))
+        this.manaBar = new cc.Sprite(cc.spriteFrameCache.getSpriteFrame("mana-bar.png"))
+        if (this.model.get("position") === PLAYER_POSITION_UP) {
+            manaBarBg.attr({
+                x: -cc.winSize.width/2 + 22,
+                y: -60,
+                scaleX: 2,
+                scaleY: 2,
+                anchorX: 0
+            })
+            manaIcon.attr({
+                x: -cc.winSize.width/2 + 10,
+                y: -60,
+                scaleX: 0.5,
+                scaleY: 0.5
+            })
+        } else {
+            manaBarBg.attr({
+                x: -cc.winSize.width/2 + 22,
+                y: 45,
+                scaleX: 2,
+                scaleY: 2,
+                anchorX: 0
+            })
+            manaIcon.attr({
+                x:  -cc.winSize.width/2 + 10,
+                y: 45,
+                scaleX: 0.5,
+                scaleY: 0.5
+            })
+        }
+        this.addChild(manaIcon);
+        this.addChild(manaBarBg);
+
+        this.manaBar.attr({
+            x: 2,
+            y: 6,
+            scaleX: 0,
+            anchorX: 0,
+            anchorY:0.5
+        })
+        manaBarBg.addChild(this.manaBar);
+
+
+        this.renderMana();
+    },
+    onHpChange:function(){
+        this.renderHp();
+    },
+    onManaChange:function(){
+        this.renderMana();
+    },
+    renderHp:function(){
+        var value = Math.round( this.model.get("hp") / this.model.get("maxHp") * 92)
+        this.hpBar.stopActionByTag(ACTION_TAG_BAR_CHANGE);
+        this.hpBar.runAction(cc.scaleTo(times.barChange, value, this.hpBar.scaleY)).setTag(ACTION_TAG_BAR_CHANGE)
+    },
+    renderMana:function(){
+        var value = Math.round( this.model.get("mana") / this.model.get("maxMana") * 92)
+        this.manaBar.stopActionByTag(ACTION_TAG_BAR_CHANGE);
+        this.manaBar.runAction(cc.scaleTo(times.barChange, value, this.manaBar.scaleY)).setTag(ACTION_TAG_BAR_CHANGE)
+    },
+    initSkillLabel:function(){
         this.featureLabel = new ccui.Text("", "Arial", 24 );
         this.featureLabel.enableOutline(cc.color.WHITE, 2);
         this.featureLabel.setTextColor(cc.color.BLACK);
@@ -37,6 +162,8 @@ var CharacterPanel = cc.Sprite.extend({
         this.model.on("change:hands",this.onHandChange, this);
         this.model.on("before-perform-skill",this.onTryPerformSkill, this);
         this.model.on("perform-skill",this.onPerformSkill, this);
+        this.model.on("change:hp",this.onHpChange,this)
+        this.model.on("change:mana",this.onManaChange,this)
     },
     closeEvent:function(){
         this.model.off(null,null,this);
@@ -70,6 +197,9 @@ var CharacterPanel = cc.Sprite.extend({
     },
     onPerformSkill:function(skillModel, feature){
         var self = this;
+        //TODO new skill view
+        skillModel.onUse(feature);
+        //TODO afterPerformSkill shall be called by skillView
         this.scheduleOnce(function(){
             self.afterPerformSkill(skillModel,feature)
         },1)

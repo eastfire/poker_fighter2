@@ -1,6 +1,9 @@
 var HeroModel = CharacterModel.extend({
     defaults:function() {
         return _.extend(CharacterModel.prototype.defaults.call(this),{
+            type: "warrior",
+            name: "",
+
             exp: 0,
             requiredExp: 100,
 

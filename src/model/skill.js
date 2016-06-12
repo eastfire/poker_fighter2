@@ -43,7 +43,8 @@ var SkillModel = Backbone.Model.extend({
         level = level || this.get("level")
         return 10;
     },
-    onUse:function(hands){
+    onUse:function(feature){
+        this.trigger("perform",feature);
     }
 });
 
@@ -54,6 +55,9 @@ SKILL_MODEL_MAP["light-attack"] = SkillModel.extend({
         return _.extend(SkillModel.prototype.defaults.call(this),{
             name: "light-attack"
         });
+    },
+    onUse:function(feature){
+        SkillModel.prototype.onUse.call(this,feature);
     }
 })
 
@@ -62,6 +66,9 @@ SKILL_MODEL_MAP["middle-attack"] = SkillModel.extend({
         return _.extend(SkillModel.prototype.defaults.call(this),{
             name: "middle-attack"
         });
+    },
+    onUse:function(feature){
+        SkillModel.prototype.onUse.call(this,feature);
     }
 })
 
@@ -70,6 +77,9 @@ SKILL_MODEL_MAP["heavy-attack"] = SkillModel.extend({
         return _.extend(SkillModel.prototype.defaults.call(this),{
             name: "heavy-attack"
         });
+    },
+    onUse:function(feature){
+        SkillModel.prototype.onUse.call(this,feature);
     }
 })
 
@@ -78,6 +88,9 @@ SKILL_MODEL_MAP["weapon-enchant-fire"] = SkillModel.extend({
         return _.extend(SkillModel.prototype.defaults.call(this),{
             name: "weapon-enchant-fire"
         });
+    },
+    onUse:function(feature){
+        SkillModel.prototype.onUse.call(this,feature);
     }
 })
 
@@ -86,5 +99,8 @@ SKILL_MODEL_MAP["shield-up"] = SkillModel.extend({
         return _.extend(SkillModel.prototype.defaults.call(this),{
             name: "shield-up"
         });
+    },
+    onUse:function(feature){
+        SkillModel.prototype.onUse.call(this,feature);
     }
 })

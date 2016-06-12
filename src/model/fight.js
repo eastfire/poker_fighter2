@@ -1,7 +1,7 @@
 var FightModel = Backbone.Model.extend({
     defaults:function(){
         return {
-
+            status:"game"
         }
     },
     getPlayerByPosition:function(position){

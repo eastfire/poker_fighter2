@@ -7,7 +7,8 @@ var EnemyModel = CharacterModel.extend({
             exp: 0,
             score: 0,
             type: PLAYER_TYPE_AI,
-            position: PLAYER_POSITION_UP
+            position: PLAYER_POSITION_UP,
+            direction: DIRECTION_DOWN
         });
     },
     initialize:function(){

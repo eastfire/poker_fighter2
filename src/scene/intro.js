@@ -24,6 +24,7 @@ var IntroLayer = cc.LayerColor.extend({
             function () {
                 cc.director.runScene(new FightScene({
                     p1: new HeroModel({
+                        type:"warrior",
                         position: PLAYER_POSITION_DOWN,
                         equipments:[
                             new EQUIPMENT_MODEL_MAP.shortSword(),
@@ -31,7 +32,11 @@ var IntroLayer = cc.LayerColor.extend({
                         ]
                     }),
                     p2: new EnemyModel({
-
+                        type:"kobold",
+                        equipments:[
+                            new EQUIPMENT_MODEL_MAP.shortSword(),
+                            new EQUIPMENT_MODEL_MAP.smallShield()
+                        ]
                     })
 
                 }))

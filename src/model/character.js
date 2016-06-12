@@ -1,3 +1,8 @@
+var DIRECTION_UP = 0
+var DIRECTION_RIGHT = 1
+var DIRECTION_DOWN = 2
+var DIRECTION_LEFT = 3
+
 var MAX_HAND = 5;
 
 var PLAYER_POSITION_DOWN = 0;
@@ -17,6 +22,7 @@ var CharacterModel = Backbone.Model.extend({
     defaults:function(){
         return {
             position: PLAYER_POSITION_DOWN,
+            direction: DIRECTION_UP,
             type: PLAYER_TYPE_PLAYER,
             level : 1,
 
@@ -26,7 +32,7 @@ var CharacterModel = Backbone.Model.extend({
             
             mana: 100,
             maxMana: 100,
-            manaGeneration: 1,
+            manaGeneration: 1, //per second
 
             attack: 10,
             defense: 0,
@@ -80,7 +86,7 @@ var CharacterModel = Backbone.Model.extend({
         this.on("change:mana",this.onManaChange,this)
     },
     maintain:function(){
-
+        this.set("mana",Math.min(this.get("mana")+this.get("manaGeneration"), this.get("maxMana")))
     },
     getMaxHpOfLevel:function(l){
 

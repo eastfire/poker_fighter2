@@ -3,6 +3,8 @@ var ACTION_TAG_ROTATE = 1001;
 var ACTION_TAG_TAKE_CARD = 1002;
 var ACTION_TAG_FLIP = 1003;
 
+var ACTION_TAG_BAR_CHANGE = 2000;
+
 var BORDER_PADDING = dimens.card_size.width+1;
 var BORDER_PADDING_STRICT = dimens.card_size.width/2+1;
 

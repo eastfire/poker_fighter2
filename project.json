@@ -34,6 +34,7 @@
         "src/view/movable-sprite.js",
         "src/view/card-sprite.js",
         "src/view/character-panel.js",
+        "src/view/character-sprite.js",
         "src/scene/battle-field.js",
         "src/scene/intro.js",
         "src/scene/skill-list.js",

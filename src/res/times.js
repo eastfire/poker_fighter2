@@ -5,6 +5,8 @@ var times = {
     cardUsed: 0.2,
     performSkill: 0.2,
 
+    barChange: 0.2,
+
     flip: 0.2,
     quickFlip: 0.1,
     takeCard: 0.3,
